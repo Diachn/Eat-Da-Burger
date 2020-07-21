@@ -2,9 +2,8 @@ const express = require("express");
 const router = express.Router();
 const burger = require("../models/burger.js");
 
-
-router.get("/", function(req, res) {
-    burger.selectAll(function(data) {
+router.get("/", (req, res) => {
+    burger.selectAll((data) => {
         const hbsObject = {
             burgers: data
         };
@@ -13,21 +12,24 @@ router.get("/", function(req, res) {
     });
 });
 
-router.post("/", function(req, res) {
-    console.log(req.body.burger_name);
-    if (req.body.burger_name !== "") {
-        burger.insertOne(req.body.burger_name.trim(), function() {
-            res.redirect("/");
-        });
-    }
+router.post("/api/burgers", (req, res) => {
+
+    burger.insertOne(["burger_name", "devoured"], [req.body.burger_name, req.body.devoured], (result) => {
+        res.json({ id: result.insertId });
+    });
 });
 
-router.put("/:id", function(req, res) {
-    console.log(req.params.id);
 
-    burger.updateOne(req.params.id, function() {
-        res.redirect("/");
+router.put("/api/burgers/:id", (req, res) => {
+    const condition = "id =" + req.params.id;
+    burger.updateOne({ devoured: req.body.devoured }, condition, (result) => {
+        if (result.changedRows === 0) {
+            // If no rows were changed, then the ID must not exist, so 404.
+            return res.status(404).end();
+        } else {
+            res.status(200).end();
+        }
     });
-})
+});
 
 module.exports = router;
