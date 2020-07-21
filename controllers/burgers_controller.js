@@ -20,7 +20,7 @@ router.post("/api/burgers", (req, res) => {
 });
 
 
-router.put("/api/burgers/:id", (req, res) => {
+router.put("/api/burgers/:id/devour", (req, res) => {
     const condition = "id =" + req.params.id;
     burger.updateOne({ devoured: req.body.devoured }, condition, (result) => {
         if (result.changedRows === 0) {
